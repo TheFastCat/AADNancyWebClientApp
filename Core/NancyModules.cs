@@ -97,6 +97,9 @@ namespace Nancy
 
             Get["/Home/CatchCode"] = _ =>
             {
+                if (Request.Query.code == null)
+                    return HttpStatusCode.Unauthorized;
+
                 // the code returned from AAD after authenticating a user
                 string authorizationCode = Request.Query.code;
 
