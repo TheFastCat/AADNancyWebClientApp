@@ -93,11 +93,9 @@ namespace Nancy
     {
         public CatchModule()
         {
-            this.RequiresMSOwinAuthentication();
-
             Get["/Home/CatchCode"] = _ =>
             {
-                if (Request.Query.code == null)
+                if (Request.Query.code == null)// todo - further validation of incoming code
                     return HttpStatusCode.Unauthorized;
 
                 // the code returned from AAD after authenticating a user
@@ -109,6 +107,8 @@ namespace Nancy
 
                 // Note: Set debugger breakpoint here to view contents of authenticationResult
                 return Response.AsJson(authenticationResult);
+
+                // TODO - query resource that requires authorization
             };
         }
     }
