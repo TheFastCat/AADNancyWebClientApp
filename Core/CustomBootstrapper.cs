@@ -13,12 +13,6 @@ namespace Core
     /// </summary>
     public class CustomBootstrapper : DefaultNancyBootstrapper
     {
-        // uncomment to remove default ctor
-        public CustomBootstrapper()
-        {
-
-        }
-
         protected override void ConfigureApplicationContainer(TinyIoCContainer container)
         {
             // enable for NancyFx diagnostics

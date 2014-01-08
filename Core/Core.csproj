@@ -66,9 +66,8 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CatchModule.cs" />
     <Compile Include="CustomBootstrapper.cs" />
-    <Compile Include="DefaultModule.cs" />
+    <Compile Include="NancyModules.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
