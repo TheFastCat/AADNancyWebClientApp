@@ -8,6 +8,7 @@ using System.Reflection;
 using Nancy.Authentication.Stateless;
 using Core.ADAL;
 using Nancy.Routing;
+using System;
 
 namespace Core
 {
@@ -16,22 +17,17 @@ namespace Core
     /// </summary>
     public class CustomBootstrapper : DefaultNancyBootstrapper
     {
-        //protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
-        //{
-        //    StaticConfiguration.EnableRequestTracing = true;
-
-
-        //    base.ApplicationStartup(container, pipelines);
-        //}
-
         protected override void RequestStartup(TinyIoCContainer requestContainer, IPipelines pipelines, NancyContext context)
         {
-            //// At request startup we modify the request pipelines to
-            //// include stateless authentication
-            ////
-            //// Configuring stateless authentication is simple. Just use the 
-            //// NancyContext to get the apiKey. Then, use the apiKey to get 
-            //// your user's identity.
+            // At request startup we modify the request pipelines to
+            // include stateless authentication
+            //
+            // Configuring stateless authentication is simple. Just use the 
+            // NancyContext to get the apiKey. Then, use the authorization code to get 
+            // your user's identity from Azure Active Directory via ADAL.
+            //
+            // If the authorization code required to do this is missing, NancyModules
+            // secured via RequiresAuthentication() cannot be invoked...
             var configuration =
                 new StatelessAuthenticationConfiguration(nancyContext =>
                 {
@@ -40,12 +36,23 @@ namespace Core
                         return null;
                     }
 
-                    //for now, we will pull the apiKey from the querystring, 
-                    //but you can pull it from any part of the NancyContext
-                    var authorizationCode = (string)nancyContext.Request.Query.code;
+                    try
+                    {
+                        //for now, we will pull the apiKey from the querystring, 
+                        //but you can pull it from any part of the NancyContext
+                        var authorizationCode = (string)nancyContext.Request.Query.code;
 
-                    //get the user identity however you choose to (for now, using a static class/method)
-                    return ActiveDirectoryAuthenticationHelper.GetAuthenticatedUserIDentity(authorizationCode);
+                        //get the user identity however you choose to (for now, using a static class/method)
+                        return ActiveDirectoryAuthenticationHelper.GetAuthenticatedUserIDentity(authorizationCode);
+                    }
+                    catch (ArgumentNullException)
+                    {
+                        return null;
+                    }
+                    catch (Exception)
+                    {
+                        return null;
+                    }
                 });
 
             StatelessAuthentication.Enable(pipelines, configuration);

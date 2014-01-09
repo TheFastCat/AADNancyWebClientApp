@@ -37,6 +37,9 @@ namespace Nancy
                 return new RedirectResponse(ActiveDirectoryAuthenticationHelper.GetAuthorizationURL());
             };
 
+            // TODO:
+            // (1) reconfigure AAD client REPLY_URL from "/Home/CatchCode" to "/"
+            // (2) remove this route (Bootstrapper.RequestStartup handles its functionality anyway)
             Get["/Home/CatchCode"] = _ =>
             {
                 if (!Request.Query.code.HasValue)// todo - further validation of incoming code
@@ -47,12 +50,7 @@ namespace Nancy
                     // the code returned from AAD after authenticating a user
                     string authorizationCode = Request.Query.code;
 
-                    //IUserIdentity userIdentity = ActiveDirectoryAuthenticationHelper.GetAuthenticatedUserIDentity(authorizationCode);
-
-                    //// assign the context's current user
-                    //Context.CurrentUser = userIdentity;
-
-                    return Response.AsRedirect("/Home" + "?code=" + authorizationCode);
+                    return Response.AsRedirect("/" + "?code=" + authorizationCode);
                 }
                 catch (ArgumentNullException)
                 {
@@ -70,12 +68,16 @@ namespace Nancy
     {
         public SecureModule()
         {
+            // this hook will redirect all matched routes in the module to the /login route if 
+            // the user hasn't been authenticated yet. Removing this hook will not redirect the users
+            // and they will just receive a 402 Unauthorized StatusCode (and a blank browser).
             Before += ctx =>
             {
                 if (ctx.Request.Path == "/login")
                     return null;
 
-                return ctx.CurrentUser == null || String.IsNullOrWhiteSpace(ctx.CurrentUser.UserName)
+                return ctx.CurrentUser == null ||
+                       String.IsNullOrWhiteSpace(ctx.CurrentUser.UserName)
                     ? new RedirectResponse("/login")
                     // else allow request to continue unabated
                     : null;
@@ -83,7 +85,7 @@ namespace Nancy
 
             this.RequiresAuthentication();
 
-            Get["/Home"] = _ =>
+            Get["/"] = _ =>
             {
                 return "Hello " + Context.CurrentUser.UserName + "!";
             };
