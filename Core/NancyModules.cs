@@ -1,31 +1,21 @@
-﻿using System;
-using Nancy;
-using Nancy.Responses;
+﻿using Nancy.Responses;
 using Nancy.Security;
-using Nancy.Owin;
-using System.Collections.Generic;
-using Nancy.Routing;
+using System;
 
 namespace Nancy
 {
     using Core.ADAL;
-    public class NancyModules : NancyModule
+
+    /// <summary>
+    /// Module containing a single login route as a launching point for Azure Active Directory authentication prompting.
+    /// </summary>
+    /// <remarks>
+    /// This is the only unsecured route for the application; secure routes redirect here in order to authenticate unauthorized users
+    /// </remarks>
+    public class AuthenticationModule : NancyModule
     {
-        public NancyModules()
+        public AuthenticationModule()
         {
-            Before += ctx =>
-            {
-                // pass through 
-                if (ctx.Request.Path == "/login" || 
-                    ctx.Request.Path ==  "/Home/CatchCode")
-                    return null;
-
-                return ctx.CurrentUser == null || String.IsNullOrWhiteSpace(ctx.CurrentUser.UserName)
-                    ? new RedirectResponse("/login")
-                    // else allow request to continue unabated
-                    : null;
-            };
-
             Get["/login"] = _ =>
             {
                 // send a request to Azure AAD via oauth2 using a URL we create containing arguments.
@@ -36,34 +26,13 @@ namespace Nancy
                 // (see CatchModule.cs for reception of this authorization code and its use to retrieve an authentication token)
                 return new RedirectResponse(ActiveDirectoryAuthenticationHelper.GetAuthorizationURL());
             };
-
-            // TODO:
-            // (1) reconfigure AAD client REPLY_URL from "/Home/CatchCode" to "/"
-            // (2) remove this route (Bootstrapper.RequestStartup handles its functionality anyway)
-            Get["/Home/CatchCode"] = _ =>
-            {
-                if (!Request.Query.code.HasValue)// todo - further validation of incoming code
-                    return HttpStatusCode.Unauthorized;
-
-                try
-                {
-                    // the code returned from AAD after authenticating a user
-                    string authorizationCode = Request.Query.code;
-
-                    return Response.AsRedirect("/" + "?code=" + authorizationCode);
-                }
-                catch (ArgumentNullException)
-                {
-                    return HttpStatusCode.Forbidden;
-                }
-                catch (Exception)
-                {
-                    return HttpStatusCode.Unauthorized;
-                }
-            };
         }
     }
 
+    /// <summary>
+    /// Routes defined here require an authenticated user in order to access ; the module will redirect
+    /// unauthenticated users to the login route.
+    /// </summary>
     public class SecureModule : NancyModule
     {
         public SecureModule()
@@ -83,13 +52,15 @@ namespace Nancy
                     : null;
             };
 
-            this.RequiresAuthentication();
+            this.RequiresHttps();          // http://goo.gl/lQdY8a
+            this.RequiresAuthentication(); // http://goo.gl/Dtxhve
 
             Get["/"] = _ =>
             {
                 return "Hello " + Context.CurrentUser.UserName + "!";
             };
 
+            // route useful for demonstrating secured routes redirect unauthorized users to /login => (ane then back to) => "/"
             Get["/Private"] = _ =>
             {
                 return "Secret stuff!";

@@ -1,13 +1,9 @@
-﻿using Nancy;
-using Nancy.Bootstrapper;
-using Nancy.Conventions;
-using Nancy.TinyIoc;
-using Nancy.Diagnostics;
-using Core;
-using System.Reflection;
+﻿using Core.ADAL;
+using Nancy;
 using Nancy.Authentication.Stateless;
-using Core.ADAL;
-using Nancy.Routing;
+using Nancy.Bootstrapper;
+using Nancy.Diagnostics;
+using Nancy.TinyIoc;
 using System;
 
 namespace Core
@@ -17,6 +13,9 @@ namespace Core
     /// </summary>
     public class CustomBootstrapper : DefaultNancyBootstrapper
     {
+        /// <summary>
+        /// This method exists for the purpose of enabling Nancy's Stateless authentication (http://goo.gl/Dtxhve)
+        /// </summary>
         protected override void RequestStartup(TinyIoCContainer requestContainer, IPipelines pipelines, NancyContext context)
         {
             // At request startup we modify the request pipelines to
@@ -31,6 +30,8 @@ namespace Core
             var configuration =
                 new StatelessAuthenticationConfiguration(nancyContext =>
                 {
+                    // the only way a user will be authenticated is if a request contains an authentication code
+                    // attached to it...
                     if (!nancyContext.Request.Query.code.HasValue)
                     {
                         return null;
@@ -45,6 +46,7 @@ namespace Core
                         //get the user identity however you choose to (for now, using a static class/method)
                         return ActiveDirectoryAuthenticationHelper.GetAuthenticatedUserIDentity(authorizationCode);
                     }
+                    // exceptions during ADAL authentication will block user authentication
                     catch (ArgumentNullException)
                     {
                         return null;
@@ -56,8 +58,6 @@ namespace Core
                 });
 
             StatelessAuthentication.Enable(pipelines, configuration);
-
-            base.RequestStartup(requestContainer, pipelines, context);
         }
 
         /// <summary>

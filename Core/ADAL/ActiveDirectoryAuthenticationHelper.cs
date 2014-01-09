@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.ADAL
 {
     using Nancy.Security;
 
+    /// <summary>
+    /// This static class is used to separate Active Directory Authentication Library (ADAL) operations against Azure Active Directory (AAD) required for user authentication.
+    /// </summary>
     public static class ActiveDirectoryAuthenticationHelper
     {
         /// <summary>
@@ -54,8 +53,9 @@ namespace Core.ADAL
         }
 
         /// <summary>
-        /// Configured settings within Azure Active Directory ('AAD') that are required by Azure Active Directory Authentication Library 
-        /// ('ADAL'/ Microsoft.IdentityModel.Clients.ActiveDirectory http://goo.gl/EzRE6d)
+        /// Variables and configured settings within Azure Active Directory ('AAD') that are required by Azure Active Directory Authentication Library 
+        /// ('ADAL'/ Microsoft.IdentityModel.Clients.ActiveDirectory http://goo.gl/EzRE6d) in order to consume authentication service from AAD from this 
+        /// client application.
         /// </summary>
         /// <remarks>
         /// Grouped, documented here for simplicity
@@ -102,7 +102,7 @@ namespace Core.ADAL
             /// <seealso cref="http://goo.gl/4zDuD"/>
             /// <seealso cref="http://goo.gl/Psep0"/>
             /// <seealso cref="http://goo.gl/5t6fg8"/>
-            public static readonly string REPLY_URL = "https://localhost:44308/Home/CatchCode";
+            public static readonly string REPLY_URL  = "https://localhost:44308/";//"https://localhost:44308/Home/CatchCode";
             /// <summary>
             /// This is the 'secret' configured within AAD to associate the calling code with the configured application within AAD
             /// </summary>
