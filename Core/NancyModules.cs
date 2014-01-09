@@ -42,8 +42,22 @@ namespace Nancy
             // and they will just receive a 402 Unauthorized StatusCode (and a blank browser).
             Before += ctx =>
             {
-                if (ctx.Request.Path == "/login")
+                if (ctx.Request.Path == "/login") // WHY IS THIS HERE??? (REMOVE)
                     return null;
+
+                // in the case that AAD returns an error we should display it
+                if (ctx.Request.Query.error.HasValue)
+                {
+                    string errorDesc = string.Format("{0}\n\n{1}\n\n{2}",
+                                                     ctx.Request.Query.error,
+                                                     ctx.Request.Query.error_description,
+                                                     "Verify you are not currently logged into a separate, unauthorized Active Directory domain account.");//I run into this a lot during development so adding reminder
+
+                    Context.Response = Response.AsText(errorDesc);
+                    Context.Response.StatusCode = HttpStatusCode.Forbidden;
+
+                    return Context.Response;
+                }
 
                 return ctx.CurrentUser == null ||
                        String.IsNullOrWhiteSpace(ctx.CurrentUser.UserName)

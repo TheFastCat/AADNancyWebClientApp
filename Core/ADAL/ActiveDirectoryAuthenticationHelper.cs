@@ -22,7 +22,7 @@ namespace Core.ADAL
                                              AAD.TENANT_ID,
                                              AAD.CLIENT_ID,
                                              AAD.APP_ID_URI,
-                                             AAD.REPLY_URL);
+                                             AAD.REPLY_URL);     
             return authorizationUrl;
         }
 
@@ -47,8 +47,8 @@ namespace Core.ADAL
         public static string GetAuthenticatedAcccessToken(string authorizationCode)
         {
             var authenticationContext = new Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext(string.Format("https://login.windows.net/{0}", AAD.TENANT_ID));
-            var clientCredential = new Microsoft.IdentityModel.Clients.ActiveDirectory.ClientCredential(AAD.CLIENT_ID, AAD.CLIENT_KEY);
-            var authenticationResult = authenticationContext.AcquireTokenByAuthorizationCode(authorizationCode, new Uri(AAD.REPLY_URL), clientCredential);
+            var clientCredential      = new Microsoft.IdentityModel.Clients.ActiveDirectory.ClientCredential(AAD.CLIENT_ID, AAD.CLIENT_KEY);
+            var authenticationResult  = authenticationContext.AcquireTokenByAuthorizationCode(authorizationCode, new Uri(AAD.REPLY_URL), clientCredential);
             return authenticationResult.AccessToken;
         }
 

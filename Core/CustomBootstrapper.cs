@@ -4,6 +4,7 @@ using Nancy.Authentication.Stateless;
 using Nancy.Bootstrapper;
 using Nancy.Diagnostics;
 using Nancy.TinyIoc;
+using Nancy.Routing;
 using System;
 
 namespace Core
@@ -13,11 +14,18 @@ namespace Core
     /// </summary>
     public class CustomBootstrapper : DefaultNancyBootstrapper
     {
+
         /// <summary>
         /// This method exists for the purpose of enabling Nancy's Stateless authentication (http://goo.gl/Dtxhve)
         /// </summary>
         protected override void RequestStartup(TinyIoCContainer requestContainer, IPipelines pipelines, NancyContext context)
         {
+
+            pipelines.OnError += (ctx, ex) =>
+            {
+                return null;
+            };
+
             // At request startup we modify the request pipelines to
             // include stateless authentication
             //
