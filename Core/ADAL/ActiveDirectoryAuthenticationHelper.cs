@@ -40,19 +40,6 @@ namespace Core.ADAL
         }
 
         /// <summary>
-        /// Acquires an authentication token from Azure Active Directory using the argument authorizationCode.
-        /// </summary>
-        /// <param name="authorizationCode">An authorization code provided by Azure Active Directory used to retrieve an IUserIdentity</param>
-        /// <returns>Returns an authentication token representing a successfully authenticated Azure Active Directory user who has privileges for this configured application</returns>
-        public static string GetAuthenticatedAcccessToken(string authorizationCode)
-        {
-            var authenticationContext = new Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext(string.Format("https://login.windows.net/{0}", AAD.TENANT_ID));
-            var clientCredential      = new Microsoft.IdentityModel.Clients.ActiveDirectory.ClientCredential(AAD.CLIENT_ID, AAD.CLIENT_KEY);
-            var authenticationResult  = authenticationContext.AcquireTokenByAuthorizationCode(authorizationCode, new Uri(AAD.REPLY_URL), clientCredential);
-            return authenticationResult.AccessToken;
-        }
-
-        /// <summary>
         /// Variables and configured settings within Azure Active Directory ('AAD') that are required by Azure Active Directory Authentication Library 
         /// ('ADAL'/ Microsoft.IdentityModel.Clients.ActiveDirectory http://goo.gl/EzRE6d) in order to consume authentication service from AAD from this 
         /// client application.
