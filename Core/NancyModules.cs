@@ -42,9 +42,6 @@ namespace Nancy
             // and they will just receive a 402 Unauthorized StatusCode (and a blank browser).
             Before += ctx =>
             {
-                if (ctx.Request.Path == "/login") // WHY IS THIS HERE??? (REMOVE)
-                    return null;
-
                 // in the case that AAD returns an error we should display it
                 if (ctx.Request.Query.error.HasValue)
                 {
